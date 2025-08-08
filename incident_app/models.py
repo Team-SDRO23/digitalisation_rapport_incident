@@ -16,8 +16,6 @@ class TypeReseau(models.Model):
         return f"TypeReseau: {self.type}"
 
 
-
-
 class Ouvrage(models.Model):
     id = models.AutoField(primary_key=True)
     libelle_ouvrage = models.CharField(max_length=100)
@@ -26,25 +24,35 @@ class Ouvrage(models.Model):
     def __str__(self):
         return f"Ouvrage: {self.libelle_ouvrage} ({self.type_reseau})"
 
-    
+class Acteur(models.Model):
+     id = models.AutoField(primary_key=True)
+     acteur= models.CharField(max_length=100)
+     def __str__(self):
+        return f"acteur: {self.acteur}"
+
+class Expertise(models.Model):
+    id = models.AutoField(primary_key=True)
+    expertise= models.CharField(max_length=100)
+    def __str__(self):
+        return f"expertise: {self.expertise}"
+
     
 class EquipeAnalyse(models.Model):
     id = models.AutoField(primary_key=True)
     nom = models.CharField(max_length=100)
     structure = models.CharField(max_length=100)
     role = models.CharField(max_length=100)
-    incident = models.ForeignKey('CollecteIncident', on_delete=models.CASCADE)
+    analyseInc = models.ForeignKey('AnalyseIncident', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"[{self.id}] {self.nom} - {self.structure} - {self.role} (Incident {self.incident})"
-
+        return f"[{self.id}] {self.nom} - {self.structure} - {self.role} (analyseInc {self.analyseInc})"
 
 class Equipement(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=100)
     ouvrage = models.ForeignKey(Ouvrage, on_delete=models.CASCADE)
     def __str__(self):
-        return f"[{self.id}] Équipement: {self.type} ({self.ouvrage.id})"
+        return f"[{self.id}] Équipement: {self.type} ({self.ouvrage})"
 
 
 class Cause(models.Model):
@@ -54,7 +62,6 @@ class Cause(models.Model):
     def __str__(self):
         return f"[{self.id}] Cause: {self.type_cause}"
     
-
 class ActionMenee(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateField()
@@ -99,8 +106,8 @@ class CollecteIncident(models.Model):
     def __str__(self):
         return (
             f"[{self.num_inc}] {self.date_inc} {self.heure_inc} "
-            f"Lieu: {self.lieu.libelle_lieu} - Ouvrage: {self.ouvrage.libelle_ouvrage} - "
-            f"Equipement: {self.equipement.type} "
+            f"Lieu: {self.lieu} - Ouvrage: {self.ouvrage} - "
+            f"Equipement: {self.equipement} "
         )
     
 
@@ -150,8 +157,10 @@ class AnalyseIncident(models.Model):
     cause = models.ForeignKey('Cause', on_delete=models.SET_NULL, null=True)
     incident = models.ForeignKey('CollecteIncident', on_delete=models.CASCADE)
 
+
+
     def __str__(self):
-        return f'Analyse {self.cause.type_cause} - {self.incident}'
+        return f'Analyse {self.cause.type_cause} - {self.incident} '
 
 
 class SuiviIncident(models.Model):
@@ -164,7 +173,7 @@ class SuiviIncident(models.Model):
 
     def __str__(self):
         return (
-            f"SuiviIncident({self.incident}, "
+            f"Incident({self.incident}, "
             f"tenue_delai={self.tenue_delai}, "
             f"commentaire_tenue_delai='{self.commentaire_tenue_delai}', "
             f"efficacite_action={self.efficacite_action}, "
