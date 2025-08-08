@@ -1,0 +1,20 @@
+{% extends 'base_root.html' %}
+
+{% block body %}
+
+    {% include 'partials/_navbar.html' %}
+
+    <main class="py-5">
+        <div class="container">
+            {% block content %}
+                {% endblock content %}
+        </div>
+    </main>
+    
+    <footer class="py-4 bg-light mt-auto">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">&copy; {% now "Y" %} SDRO. Tous droits réservés.</p>
+        </div>
+    </footer> 
+    
+{% endblock body %}

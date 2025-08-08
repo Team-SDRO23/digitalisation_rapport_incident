@@ -1,0 +1,28 @@
+├── incident_app/
+│   ├── __pycache__/
+│   │   
+│   ├── migrations/
+│   │   ├── __pycache__/
+│   ├── templates/
+│   │   ├── incident_app/
+│   │   │   ├── collecteincident_detail.html (3.6 KB)
+│   │   │   ├── collecteincident_form.html (6.5 KB)
+│   │   │   ├── collecteincident_list.html (4.9 KB)
+│   │   │   └── home.html (0.8 KB)
+│   │   └── base.html (2.9 KB)
+│   ├── __init__.py (0.0 KB)
+│   ├── admin.py (2.5 KB)
+│   ├── apps.py (0.1 KB)
+│   ├── forms.py (3.1 KB)
+│   ├── models.py (6.6 KB)
+│   ├── urls.py (0.7 KB)
+│   └── views.py (2.8 KB)
+├── incident_project/
+│   ├── __pycache__/
+│   ├── __init__.py (0.0 KB)
+│   ├── settings.py (1.6 KB)
+│   ├── urls.py (0.4 KB)
+│   └── wsgi.py (0.2 KB)
+├── db.sqlite3 (240.0 KB)
+├── manage.py (0.5 KB)
+└── requirements.txt (0.1 KB)

@@ -1,0 +1,106 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}Liste des Incidents{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Rapports d'Incidents</h1>
+    <a href="{% url 'incident_app:collecteincident_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Créer un rapport
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Liste des rapports enregistrés</h5>
+        <form method="get" action="{% url 'incident_app:collecteincident_list' %}" class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Rechercher..." name="q" value="{{ request.GET.q }}">
+            <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="ps-4">N° Incident</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Lieu</th>
+                        <th scope="col">Ouvrage</th>
+                        <th scope="col">Statut Analyse</th>
+                        <th scope="col" class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inc in incidents %}
+                    <tr class="clickable-row" data-href="{% url 'incident_app:collecteincident_detail' inc.num_inc %}">
+                        <td class="ps-4 fw-medium">
+                            <a href="{% url 'incident_app:collecteincident_detail' inc.num_inc %}" class="text-decoration-none">{{ inc.num_inc }}</a>
+                        </td>
+                        <td>{{ inc.date_inc|date:"d M Y" }}</td>
+                        <td>{{ inc.lieu.libelle_lieu }}</td>
+                        <td>{{ inc.ouvrage.libelle_ouvrage }}</td>
+                        <td>
+                            {% if inc.analyse %}
+                                <span class="badge bg-success-subtle text-success-emphasis rounded-pill">Effectuée</span>
+                            {% else %}
+                                <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill">En attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a class="btn btn-sm btn-outline-secondary disabled" href="#" title="Modifier">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a class="btn btn-sm btn-outline-danger disabled" href="#" title="Supprimer">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <p class="mb-1">Aucun incident trouvé.</p>
+                            {% if request.GET.q %}
+                                <p class="text-muted small">Essayez avec d'autres mots-clés ou videz la recherche.</p>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    {% if is_paginated %}
+    <div class="card-footer bg-light">
+       <nav aria-label="Pagination des incidents">
+            <ul class="pagination justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1&q={{ request.GET.q }}">&laquo; Première</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}">Précédente</a></li>
+                {% endif %}
+                <li class="page-item active" aria-current="page"><span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}">Suivante</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&q={{ request.GET.q }}">Dernière &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll("tr[data-href]");
+    
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
+{% endblock %}

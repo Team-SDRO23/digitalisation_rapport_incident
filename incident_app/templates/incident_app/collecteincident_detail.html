@@ -1,0 +1,101 @@
+{% extends 'base_layout.html' %}
+{% block title %}Détail Incident {{ object.num_inc }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="display-6">Rapport d'Incident</h1>
+        <p class="lead mb-0">Référence : {{ object.num_inc }}</p>
+    </div>
+    <div class="form-body">
+        <h4 class="mb-3 border-bottom pb-2">A. Collecte de l'Incident</h4>
+        <div class="row g-4">
+            <div class="col-md-6"><p class="mb-0"><strong>Date et Heure:</strong><br>{{ object.date_inc|date:"d F Y" }} à {{ object.heure_inc }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Lieu:</strong><br>{{ object.lieu.libelle_lieu }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Ouvrage:</strong><br>{{ object.ouvrage.libelle_ouvrage }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Équipement:</strong><br>{{ object.equipement.type }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Objet:</strong><br>{{ object.objet }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Origine et cause probable:</strong><br>{{ object.origine_cause_probable }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Constat sur terrain:</strong><br>{{ object.constat }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Situation avant l'incident:</strong><br>{{ object.fait_avant }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Situation après l'incident:</strong><br>{{ object.fait_apres }}</p></div>
+        </div>
+
+        <h5 class="mt-4 mb-3">A6. Actions menées (Restauration)</h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                    <tr><th>Date</th><th>Heure</th><th>Type Réseau</th><th>Action Réalisée</th></tr>
+                </thead>
+                <tbody>
+                {% for act in object.actions_menees.all %}
+                    <tr><td>{{ act.date|date:"d M Y" }}</td><td>{{ act.heure }}</td><td>{{ act.type_reseau }}</td><td>{{ act.action }}</td></tr>
+                {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted">Aucune action de restauration enregistrée.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="my-5">
+
+        <h4 class="mb-4 border-bottom pb-2">B. Analyse de l'Incident</h4>
+        
+        {% if object.analyse %}
+            <div class="row g-4 mb-4">
+                <div class="col-md-6"><p class="mb-0"><strong>Date de l'analyse:</strong><br>{{ object.analyse.date_analyse|date:"d F Y" }}</p></div>
+                <div class="col-md-6"><p class="mb-0"><strong>Cause retenue:</strong><br>{{ object.analyse.cause.type_cause }}</p></div>
+                <div class="col-12"><p class="mb-0"><strong>Constat d'analyse:</strong><br>{{ object.analyse.constat }}</p></div>
+            </div>
+
+            <h5 class="mb-3">B1. Équipe d'analyse</h5>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr><th>Nom</th><th>Structure</th><th>Rôle</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for eq in object.analyse.equipe.all %}
+                        <tr><td>{{ eq.nom }}</td><td>{{ eq.structure }}</td><td>{{ eq.role }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted">Aucune équipe renseignée pour cette analyse.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h5 class="mb-3">B7. Recommandations</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr><th>Action Recommandée</th><th>Responsabilité</th><th>Délai</th></tr>
+                    </thead>
+                    <tbody>
+                    {% for reco in object.analyse.recommandations.all %}
+                        <tr><td>{{ reco.action }}</td><td>{{ reco.responsabilite }}</td><td>{{ reco.delai|date:"d M Y" }}</td></tr>
+                    {% empty %}
+                        <tr><td colspan="3" class="text-center text-muted">Aucune recommandation émise.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center p-4 border rounded bg-light">
+                <p class="mb-2">L'analyse de cet incident n'a pas encore été effectuée.</p>
+                <a href="{% url 'incident_app:analyseincident_create' object.num_inc %}" class="btn btn-primary">
+                    <i class="bi bi-clipboard2-data"></i> Démarrer l'Analyse
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'incident_app:collecteincident_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Retour à la liste
+    </a>
+    <button onclick="window.print()" class="btn btn-outline-primary">
+        <i class="bi bi-printer"></i> Imprimer le rapport
+    </button>
+</div>
+{% endblock %}

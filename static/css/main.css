@@ -1,0 +1,93 @@
+/* static/css/main.css */
+
+:root {
+    /* Définition de la nouvelle palette de couleurs */
+    --primary-gradient: linear-gradient(30deg, #044B69 15%, #80d0c7 100%);
+    --primary-color: #044B69; /* Le bleu foncé du dégradé pour les éléments unis */
+    --light-gray: #f4f7f6;
+    --dark-text: #2c3e50;
+    --bs-font-sans-serif: 'Poppins', sans-serif;
+}
+
+/* --- Structure de base et Footer collant --- */
+html, body {
+    height: 100%;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--light-gray);
+    font-family: var(--bs-font-sans-serif);
+    color: var(--dark-text);
+}
+main {
+    flex: 1 0 auto;
+}
+footer {
+    flex-shrink: 0;
+}
+
+/* --- Barre de Navigation avec le nouveau dégradé --- */
+.navbar-custom {
+    background-image: var(--primary-gradient); /* Utilisation du dégradé */
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.navbar-brand-custom {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #ffffff !important;
+}
+.nav-link-custom {
+    /* POLICE AGRANDIE ICI */
+    font-size: 1.50rem; 
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.2s ease-in-out;
+}
+.nav-link-custom:hover {
+    color: #ffffff !important;
+}
+
+/* RÈGLE AJOUTÉE POUR LE BOUTON CONNEXION/UTILISATEUR */
+.navbar-custom .btn {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* --- Harmonie des Couleurs --- */
+.btn-primary {
+    background-color: var(--primary-color); /* Utilisation du bleu foncé uni */
+    border-color: var(--primary-color);
+    transition: opacity 0.2s ease-in-out;
+}
+.btn-primary:hover {
+    opacity: 0.9;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.form-container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.07);
+    overflow: hidden;
+}
+.form-header {
+    background-image: var(--primary-gradient); /* Utilisation du dégradé */
+    color: #fff;
+    padding: 2rem;
+    text-align: center;
+}
+.form-body {
+    padding: 2rem 3rem;
+}
+
+
+/* --- Style du focus pour les champs de formulaire --- */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(4, 75, 105, 0.25); /* Lueur assortie au bleu foncé du dégradé */
+}

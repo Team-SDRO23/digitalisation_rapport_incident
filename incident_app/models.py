@@ -26,17 +26,6 @@ class Ouvrage(models.Model):
     def __str__(self):
         return f"Ouvrage: {self.libelle_ouvrage} ({self.type_reseau})"
 
-    
-    
-class EquipeAnalyse(models.Model):
-    id = models.AutoField(primary_key=True)
-    nom = models.CharField(max_length=100)
-    structure = models.CharField(max_length=100)
-    role = models.CharField(max_length=100)
-    incident = models.ForeignKey('CollecteIncident', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"[{self.id}] {self.nom} - {self.structure} - {self.role} (Incident {self.incident})"
 
 
 class Equipement(models.Model):
@@ -72,51 +61,47 @@ class ActionMenee(models.Model):
         )
 
 class CollecteIncident(models.Model):
-    num_inc = models.CharField(max_length=50, primary_key=True)
-    date_inc = models.DateField()
-    heure_inc = models.TimeField()
+    
+    objet = models.TextField(verbose_name="Objet de l'analyse", blank=True, null=True)
+    origine_cause_probable = models.TextField(verbose_name="Origine et cause probable",blank=True, null=True)
+    
+    # Champs existants
+    num_inc = models.CharField("N° Fiche", max_length=50, primary_key=True)
+    date_inc = models.DateField("Date de l'événement")
+    heure_inc = models.TimeField("Heure de l'événement")
     lieu = models.ForeignKey(Lieu, on_delete=models.CASCADE)
     ouvrage = models.ForeignKey(Ouvrage, on_delete=models.CASCADE)
     equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
-    constat = models.CharField(max_length=200, default='RAS')
-    fait_avant = models.CharField(max_length=200)
-    fait_apres = models.CharField(max_length=200, blank=True, null=True)
-    env_atmospherique = models.CharField(max_length=200, default='RAS')
-    env_vegeta = models.CharField(max_length=200, default='RAS')
-    env_animal = models.CharField(max_length=200, default='RAS')
-    env_humain = models.CharField(max_length=200, default='RAS')
-    env_industriel = models.CharField(max_length=200, default='RAS')
+    constat = models.TextField("Constat sur terrain (non-conformités)", default='RAS')
+    fait_avant = models.TextField("Faits et paramètres avant l'incident")
+    fait_apres = models.TextField("Faits et paramètres après l'incident", blank=True, null=True)
+    
+    # Section Environnement
+    env_atmospherique = models.CharField("Environnement Atmosphérique", max_length=200, default='RAS')
+    env_vegeta = models.CharField("Environnement Végétal", max_length=200, default='RAS')
+    env_animal = models.CharField("Environnement Animal", max_length=200, default='RAS')
+    env_humain = models.CharField("Environnement Humain", max_length=200, default='RAS')
+    env_industriel = models.CharField("Environnement Industriel",  max_length=200, default='RAS')
+    
+    # Section Causes
     cause_agression = models.CharField(max_length=200)
     cause_technique = models.CharField(max_length=200)
-    reprise_client = models.CharField(max_length=200)
-    mes_exploitation = models.CharField(max_length=200, default='RAS')
-    mes_maintenance = models.CharField(max_length=200, default='RAS')
-    impact_param_qp = models.CharField(max_length=200)
+    
+    # Section Actions et Impacts
+    reprise_client = models.CharField("Détails sur la reprise de la clientèle", max_length=200)
+    mes_exploitation = models.CharField("Mesures conservatoires (Exploitation)", max_length=200, default='RAS')
+    mes_maintenance = models.CharField("Mesures conservatoires (Maintenance)", max_length=200, default='RAS')
+    impact_param_qp = models.CharField("Impact sur paramètres QP (ex: 224 MWh d'END)", max_length=200)
     situation_provisoire = models.CharField(max_length=200)
-    action_a_menee = models.CharField(max_length=200)
-    autre_info = models.CharField(max_length=200, default='RAS')
+    action_a_menee = models.TextField("Actions à mener", blank=True, null=True)
+    autre_info = models.TextField("Autres informations", default='RAS', blank=True)
+
 
     def __str__(self):
         return (
             f"[{self.num_inc}] {self.date_inc} {self.heure_inc} "
             f"Lieu: {self.lieu.libelle_lieu} - Ouvrage: {self.ouvrage.libelle_ouvrage} - "
             f"Equipement: {self.equipement.type} "
-        )
-    
-
-class RecommandationAnalyse(models.Model):
-    id = models.AutoField(primary_key=True)
-    action = models.CharField(max_length=200)
-    responsabilite = models.CharField(max_length=100)
-    delai = models.DateField()
-    cout = models.DecimalField(max_digits=10, decimal_places=2)
-
-    analyse_inc= models.ForeignKey('AnalyseIncident', on_delete=models.CASCADE )
-
-    def __str__(self):
-        return (
-            f"[{self.id}] Action: {self.action}, "
-            f"Analyse: {self.analyse_inc}"
         )
 
 
@@ -148,10 +133,56 @@ class AnalyseIncident(models.Model):
     illustration = models.ImageField(upload_to='illustrations/', null=True, blank=True)
 
     cause = models.ForeignKey('Cause', on_delete=models.SET_NULL, null=True)
-    incident = models.ForeignKey('CollecteIncident', on_delete=models.CASCADE)
+    incident = models.OneToOneField(CollecteIncident, on_delete=models.CASCADE, related_name='analyse')
+    
+    conclusion = models.TextField(verbose_name="Conclusion de l'analyse", blank=True, null=True)
 
     def __str__(self):
         return f'Analyse {self.cause.type_cause} - {self.incident}'
+
+    
+class EquipeAnalyse(models.Model):
+    id = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=100)
+    structure = models.CharField(max_length=100)
+    role = models.CharField(max_length=100)
+    analyse = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='equipe', null=True)
+
+    def __str__(self):
+        return f"[{self.id}] {self.nom} - {self.structure} - {self.role} (Analyse {self.analyse})"
+
+    
+
+class Acteur(models.Model):
+     id = models.AutoField(primary_key=True)
+     acteur= models.CharField(max_length=100)
+     def __str__(self):
+        return f"acteur: {self.acteur}"
+    
+    
+class Expertise(models.Model):
+    id = models.AutoField(primary_key=True)
+    expertise= models.CharField(max_length=100)
+    def __str__(self):
+        return f"expertise: {self.expertise}"
+    
+    
+    
+class RecommandationAnalyse(models.Model):
+    id = models.AutoField(primary_key=True)
+    action = models.CharField(max_length=200)
+    responsabilite = models.CharField(max_length=100)
+    delai = models.DateField(null=True, blank=True)
+    cout = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    analyse_inc = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='recommandations', null=True)
+
+    def __str__(self):
+        return (
+            f"[{self.id}] Action: {self.action}, "
+            f"Analyse: {self.analyse_inc}"
+        )
+
 
 
 class SuiviIncident(models.Model):

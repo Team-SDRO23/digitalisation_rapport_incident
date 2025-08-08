@@ -1,0 +1,151 @@
+{% extends 'base_layout.html' %}
+{% block title %}Nouveau Rapport d'Incident{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="display-6">Rapport d'Incident</h1>
+        <p class="lead mb-0">Veuillez remplir les sections ci-dessous de manière séquentielle.</p>
+    </div>
+
+    <form method="post" class="form-body" novalidate>
+        {% csrf_token %}
+
+        <fieldset id="section-a">
+            <h4 class="mb-4 border-bottom pb-2">A. Collecte d'informations</h4>
+            <div class="row g-3">
+                {% for field in form %}
+                    <div class="col-md-6">
+                        <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+         <fieldset id="section-b" disabled>
+            <!-- <h4 class="mb-4 border-bottom pb-2">B. Analyse de l'Incident</h4>
+             -->
+            <!-- <h5 class="mb-3">Équipe d'analyse</h5>
+            {{ equipes.management_form }}
+            <div id="equipes-container">
+                {% for form in equipes.forms %}
+                <div class="p-3 border rounded mb-3 equipe-form">
+                    <div class="row g-3">
+                        {% for field in form.visible_fields %}
+                        <div class="col-md-4">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-equipe"><i class="bi bi-plus"></i> Ajouter un membre</button>
+            
+            <hr class="my-4"> -->
+            
+            <h5 class="mb-3">Actions menées</h5>
+            {{ actions.management_form }}
+            <div id="actions-container">
+                {% for form in actions.forms %}
+                <div class="p-3 border rounded mb-3 action-form">
+                    <div class="row g-3">
+                        {% for field in form.visible_fields %}
+                        <div class="col-12 col-md-4">
+                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                     {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-action"><i class="bi bi-plus"></i> Ajouter une action</button>
+        </fieldset>
+
+        <hr class="my-5">
+
+       
+        
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-primary btn-lg px-5">Soumettre le rapport</button>
+        </div>
+    </form>
+</div>
+
+
+<template id="action-template">
+    <div class="p-3 border rounded mb-3 action-form">
+        <div class="row g-3">
+            {% for field in actions.empty_form.visible_fields %}
+            <div class="col-12 col-md-4">
+                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+        </div>
+        {% for hidden in actions.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+    </div>
+</template>
+{% endblock %}
+
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionA = document.getElementById('section-a');
+    const sectionB = document.getElementById('section-b');
+    
+    function checkSectionA() {
+        // Cible uniquement les champs avec l'attribut 'required'
+        const requiredInputs = sectionA.querySelectorAll('input:required, select:required, textarea:required');
+        const allFilled = Array.from(requiredInputs).every(input => {
+            if (input.type === 'checkbox') {
+                return input.checked;
+            }
+            return input.value.trim() !== '';
+        });
+        sectionB.disabled = !allFilled;
+    }
+
+    sectionA.addEventListener('input', checkSectionA);
+    checkSectionA(); // Vérifier au chargement
+
+    function setupFormset(containerId, addButtonId, templateId, prefix) {
+        const container = document.getElementById(containerId);
+        const addButton = document.getElementById(addButtonId);
+        const template = document.getElementById(templateId);
+        const totalFormsInput = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
+        
+        addButton.addEventListener('click', function() {
+            let formNum = parseInt(totalFormsInput.value);
+            
+            // On clone le contenu du template
+            const newFormFragment = template.content.cloneNode(true);
+            
+            // On met à jour les attributs des éléments clonés
+            const newFormElements = newFormFragment.querySelectorAll('*');
+            newFormElements.forEach(function(element) {
+                ['for', 'id', 'name'].forEach(function(attr) {
+                    let value = element.getAttribute(attr);
+                    if (value) {
+                        element.setAttribute(attr, value.replace(/__prefix__/g, formNum));
+                    }
+                });
+            });
+
+            container.append(newFormFragment);
+            totalFormsInput.value = formNum + 1;
+        });
+    }
+
+    // setupFormset('equipes-container', 'add-equipe', 'equipe-template', 'equipes');
+    setupFormset('actions-container', 'add-action', 'action-template', 'actions');
+});
+</script>
+{% endblock %}

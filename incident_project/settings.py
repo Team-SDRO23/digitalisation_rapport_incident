@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,7 +32,7 @@ ROOT_URLCONF = 'incident_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -58,4 +59,14 @@ LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-STATIC_URL = '/static/'
+# --- Configuration des Fichiers Statiques ---
+STATIC_URL = 'static/'
+
+# Dites à Django où trouver vos fichiers statiques globaux
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# (Optionnel mais recommandé pour la production)
+# Le dossier où `collectstatic` mettra tous les fichiers statiques
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
