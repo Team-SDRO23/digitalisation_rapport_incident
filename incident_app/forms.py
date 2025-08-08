@@ -1,7 +1,11 @@
 # incident_app/forms.py (Mis à jour)
 
 from django import forms
-from .models import CollecteIncident, ActionMenee, AnalyseIncident, EquipeAnalyse, RecommandationAnalyse
+from .models import (
+    CollecteIncident, ActionMenee, AnalyseIncident, 
+    EquipeAnalyse, RecommandationAnalyse, SuiviIncident,
+    Acteur, Expertise 
+)
 from django.forms import inlineformset_factory
 
 
@@ -73,17 +77,52 @@ ActionFormSet = inlineformset_factory(
 # ===================================================================
 
 class AnalyseIncidentForm(forms.ModelForm):
+    # On définit les champs qui afficheront les cases à cocher
+    # Ce ne sont PAS les champs du modèle, mais des champs temporaires pour le formulaire
+    acteurs_selection = forms.ModelMultipleChoiceField(
+        queryset=Acteur.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Sélectionner les acteurs au moment de l'incident"
+    )
+    
+    expertises_selection = forms.ModelMultipleChoiceField(
+        queryset=Expertise.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Sélectionner les expertises utiles pour analyse"
+    )
+    
     class Meta:
         model = AnalyseIncident
-        exclude = ['incident'] # L'incident sera lié automatiquement dans la vue
+        fields = [
+            'date_analyse', 'heure_dbt_analyse', 'heure_fin_analyse', 'constat', 
+            'cause', 'illustration', 'conclusion'
+        ]
+        exclude = ['incident', 'list_acteurs', 'list_expertise']
         widgets = {
             'date_analyse': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'heure_dbt_analyse': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'heure_fin_analyse': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'constat': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'cause': forms.Select(attrs={'class': 'form-select'}),
+            'illustration': forms.FileInput(attrs={'class': 'form-control'}), # Widget pour les fichiers
+            'conclusion': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}), # Widget pour la conclusion
             # Vous pouvez ajouter ici des widgets pour les autres champs si nécessaire
         }
+        
+    def save(self, commit=True):
+        # On récupère les sélections des cases à cocher
+        acteurs_selectionnes = self.cleaned_data.get('acteurs_selection', [])
+        expertises_selectionnees = self.cleaned_data.get('expertises_selection', [])
+
+        # On convertit la liste des objets en une chaîne de noms
+        # ex: "Exploitants usine SOUBRE, Acteurs de conduite BCC"
+        self.instance.list_acteurs = ", ".join([acteur.acteur for acteur in acteurs_selectionnes])
+        self.instance.list_expertise = ", ".join([expertise.expertise for expertise in expertises_selectionnees])
+        
+        # On sauvegarde l'instance normalement
+        return super().save(commit)
 
 EquipeAnalyseFormSet = inlineformset_factory(
     AnalyseIncident, EquipeAnalyse,
