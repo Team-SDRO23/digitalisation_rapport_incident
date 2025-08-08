@@ -1,0 +1,42 @@
+{% extends 'base_layout.html' %}
+{% block title %}Suivi de l'Incident {{ collecte_incident.num_inc }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="display-6">C. Suivi du Traitement</h1>
+        <p class="lead mb-0">Référence : {{ collecte_incident.num_inc }}</p>
+    </div>
+
+    <form method="post" class="form-body" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="form-check form-switch fs-5">
+                    {{ form.tenue_delai }}
+                    <label class="form-check-label" for="{{ form.tenue_delai.id_for_label }}">{{ form.tenue_delai.label }}</label>
+                </div>
+                <div class="form-text">Cochez si les délais convenus pour les recommandations ont été respectés.</div>
+                {{ form.commentaire_tenue_delai.label_tag }}
+                {{ form.commentaire_tenue_delai }}
+            </div>
+
+            <hr class="my-3">
+
+            <div class="col-12">
+                <div class="form-check form-switch fs-5">
+                    {{ form.efficacite_action }}
+                    <label class="form-check-label" for="{{ form.efficacite_action.id_for_label }}">{{ form.efficacite_action.label }}</label>
+                </div>
+                <div class="form-text">Cochez si les actions menées se sont avérées efficaces.</div>
+                {{ form.commentaire_efficacite.label_tag }}
+                {{ form.commentaire_efficacite }}
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-primary btn-lg px-5">Enregistrer le Suivi</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -5,8 +5,8 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.shortcuts import render, get_object_or_404
-from .models import CollecteIncident, AnalyseIncident
-from .forms import CollecteIncidentForm, ActionFormSet, AnalyseIncidentForm, EquipeAnalyseFormSet, RecommandationAnalyseFormSet
+from .models import CollecteIncident, AnalyseIncident, SuiviIncident
+from .forms import CollecteIncidentForm, ActionFormSet, AnalyseIncidentForm,EquipeAnalyseFormSet , RecommandationAnalyseFormSet, SuiviIncidentForm
 
 def home_view(request):
     """ Affiche la page d'accueil (landing page). """
@@ -110,3 +110,29 @@ class AnalyseIncidentCreateView(CreateView):
     def get_success_url(self):
         # Redirige vers la page de détail de l'incident après l'analyse
         return reverse_lazy('incident_app:collecteincident_detail', kwargs={'num_inc': self.object.incident.num_inc})
+    
+    
+    
+    
+
+class SuiviIncidentCreateView(CreateView):
+    model = SuiviIncident
+    form_class = SuiviIncidentForm
+    template_name = 'incident_app/suivi_incident_form.html'
+
+    def form_valid(self, form):
+        # On récupère l'incident parent depuis l'URL
+        collecte_incident = get_object_or_404(CollecteIncident, num_inc=self.kwargs['num_inc'])
+        # On lie le suivi à cet incident
+        form.instance.incident = collecte_incident
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # On ajoute l'incident au contexte pour l'afficher sur la page
+        context['collecte_incident'] = get_object_or_404(CollecteIncident, num_inc=self.kwargs['num_inc'])
+        return context
+
+    def get_success_url(self):
+        # On redirige l'utilisateur vers la page de détail de l'incident
+        return reverse_lazy('incident_app:collecteincident_detail', kwargs={'num_inc': self.kwargs['num_inc']})

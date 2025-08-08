@@ -143,3 +143,22 @@ RecommandationAnalyseFormSet = inlineformset_factory(
         'delai': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     }
 )
+
+
+
+
+# ===================================================================
+# --- SECTION C : FORMULAIRE DE SUIVI D'INCIDENT ---
+# ===================================================================
+
+class SuiviIncidentForm(forms.ModelForm):
+    class Meta:
+        model = SuiviIncident
+        # On exclut le lien avec l'incident, qui sera fait automatiquement
+        exclude = ['incident']
+        widgets = {
+            'tenue_delai': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'commentaire_tenue_delai': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+            'efficacite_action': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'commentaire_efficacite': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
+        }

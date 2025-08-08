@@ -6,6 +6,7 @@ from .views import (
     CollecteIncidentDetailView,
     CollecteIncidentCreateView,
     AnalyseIncidentCreateView,
+    SuiviIncidentCreateView,
 )
 
 
@@ -21,7 +22,12 @@ urlpatterns = [
     # Création d'un incident
     path('rapports/nouveau/', CollecteIncidentCreateView.as_view(), name='collecteincident_create'),
     
+    #  Analyse incident
     path('rapports/<str:num_inc>/analyser/', AnalyseIncidentCreateView.as_view(), name='analyseincident_create'),
+    
+    # Suivi des recommendation
+    path('rapports/<str:num_inc>/suivi/', SuiviIncidentCreateView.as_view(), name='suiviincident_create'),
+
     
     # Détail d'un incident
     path('rapports/<str:num_inc>/', CollecteIncidentDetailView.as_view(), name='collecteincident_detail'),

@@ -8,17 +8,27 @@
         <p class="lead mb-0">Référence : {{ object.num_inc }}</p>
     </div>
     <div class="form-body">
-        <h4 class="mb-3 border-bottom pb-2">A. Collecte de l'Incident</h4>
+        <h4 class="mb-4 border-bottom pb-2">A. Collecte de l'Incident</h4>
+        
+        <h5 class="mb-3">A1, A2, A3. Informations Générales</h5>
         <div class="row g-4">
             <div class="col-md-6"><p class="mb-0"><strong>Date et Heure:</strong><br>{{ object.date_inc|date:"d F Y" }} à {{ object.heure_inc }}</p></div>
             <div class="col-md-6"><p class="mb-0"><strong>Lieu:</strong><br>{{ object.lieu.libelle_lieu }}</p></div>
             <div class="col-md-6"><p class="mb-0"><strong>Ouvrage:</strong><br>{{ object.ouvrage.libelle_ouvrage }}</p></div>
             <div class="col-md-6"><p class="mb-0"><strong>Équipement:</strong><br>{{ object.equipement.type }}</p></div>
-            <div class="col-12"><p class="mb-0"><strong>Objet:</strong><br>{{ object.objet }}</p></div>
-            <div class="col-12"><p class="mb-0"><strong>Origine et cause probable:</strong><br>{{ object.origine_cause_probable }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Objet:</strong><br>{{ object.objet|default:"Non renseigné" }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Origine et cause probable:</strong><br>{{ object.origine_cause_probable|default:"Non renseigné" }}</p></div>
             <div class="col-12"><p class="mb-0"><strong>Constat sur terrain:</strong><br>{{ object.constat }}</p></div>
             <div class="col-12"><p class="mb-0"><strong>Situation avant l'incident:</strong><br>{{ object.fait_avant }}</p></div>
-            <div class="col-12"><p class="mb-0"><strong>Situation après l'incident:</strong><br>{{ object.fait_apres }}</p></div>
+            <div class="col-12"><p class="mb-0"><strong>Situation après l'incident:</strong><br>{{ object.fait_apres|default:"Non renseigné" }}</p></div>
+        </div>
+
+        <h5 class="mt-4 mb-3">A4. Environnement</h5>
+        <div class="row g-4">
+            <div class="col-md-6"><p class="mb-0"><strong>Atmosphérique:</strong> {{ object.env_atmospherique }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Végétal:</strong> {{ object.env_vegeta }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Animal:</strong> {{ object.env_animal }}</p></div>
+            <div class="col-md-6"><p class="mb-0"><strong>Humain:</strong> {{ object.env_humain }}</p></div>
         </div>
 
         <h5 class="mt-4 mb-3">A6. Actions menées (Restauration)</h5>
@@ -40,12 +50,11 @@
         <hr class="my-5">
 
         <h4 class="mb-4 border-bottom pb-2">B. Analyse de l'Incident</h4>
-        
         {% if object.analyse %}
             <div class="row g-4 mb-4">
                 <div class="col-md-6"><p class="mb-0"><strong>Date de l'analyse:</strong><br>{{ object.analyse.date_analyse|date:"d F Y" }}</p></div>
-                <div class="col-md-6"><p class="mb-0"><strong>Cause retenue:</strong><br>{{ object.analyse.cause.type_cause }}</p></div>
-                <div class="col-12"><p class="mb-0"><strong>Constat d'analyse:</strong><br>{{ object.analyse.constat }}</p></div>
+                <div class="col-md-6"><p class="mb-0"><strong>Cause retenue:</strong><br>{{ object.analyse.cause.type_cause|default:"Non définie" }}</p></div>
+                <div class="col-12"><p class="mb-0"><strong>Constat d'analyse:</strong><br>{{ object.analyse.constat|default:"Non renseigné" }}</p></div>
             </div>
 
             <h5 class="mb-3">B1. Équipe d'analyse</h5>
@@ -86,6 +95,45 @@
                     <i class="bi bi-clipboard2-data"></i> Démarrer l'Analyse
                 </a>
             </div>
+        {% endif %}
+        
+        <hr class="my-5">
+
+        <h4 class="mb-4 border-bottom pb-2">C. Suivi du Traitement des Recommandations</h4>
+        {% if object.suiviincident_set.first %}
+            {% with suivi=object.suiviincident_set.first %}
+                <p><strong>Tenue des délais convenus :</strong> {{ suivi.tenue_delai|yesno:"Oui,Non" }}</p>
+                <p><em>{{ suivi.commentaire_tenue_delai|default:"Aucun commentaire." }}</em></p>
+                <hr class="my-3">
+                <p><strong>Efficacité des actions :</strong> {{ suivi.efficacite_action|yesno:"Oui,Non" }}</p>
+                <p><em>{{ suivi.commentaire_efficacite|default:"Aucun commentaire." }}</em></p>
+            {% endwith %}
+        {% else %}
+            <div class="text-center p-4 border rounded bg-light">
+                <p class="mb-2">Le suivi de cet incident n'a pas encore été effectué.</p>
+                {% if object.analyse %}
+                    <a href="{% url 'incident_app:suiviincident_create' object.num_inc %}" class="btn btn-primary">
+                        <i class="bi bi-check2-circle"></i> Démarrer le Suivi
+                    </a>
+                {% else %}
+                     <p class="text-muted small">Le suivi ne peut être démarré qu'après la fin de l'analyse.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if object.analyse %}
+            <hr class="my-5">
+            <h4 class="mb-3 border-bottom pb-2">D. Illustration</h4>
+            {% if object.analyse.illustration %}
+                <img src="{{ object.analyse.illustration.url }}" class="img-fluid rounded border" alt="Illustration de l'incident">
+            {% else %}
+                <p class="text-muted">Aucune illustration fournie.</p>
+            {% endif %}
+
+            <h4 class="mt-5 mb-3 border-bottom pb-2">E. Conclusion</h4>
+            <p class="fst-italic">
+                {{ object.analyse.conclusion|default:"Aucune conclusion rédigée."|linebreaksbr }}
+            </p>
         {% endif %}
     </div>
 </div>

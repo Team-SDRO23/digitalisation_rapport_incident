@@ -1,37 +1,18 @@
-{% extends 'base_layout.html' %}
-{% block title %}Analyse de l'Incident {{ collecte_incident.num_inc }}{% endblock %}
-
-{% block content %}
+{% extends 'base_layout.html' %} {% block title %}Analyse de l'Incident {{
+collecte_incident.num_inc }}{% endblock %} {% block content %}
 <div class="form-container">
     <div class="form-header">
-        <h1 class="display-6">Analyse de l'Incident</h1>
+        <h1 class="display-6">B. Analyse de l'Incident</h1>
         <p class="lead mb-0">Référence : {{ collecte_incident.num_inc }}</p>
     </div>
 
-    <div class="p-3 mb-4 bg-light border-bottom">
-        <p class="mb-0"><strong>Date :</strong> {{ collecte_incident.date_inc|date:"d M Y" }} | <strong>Lieu :</strong> {{ collecte_incident.lieu.libelle_lieu }} | <strong>Ouvrage :</strong> {{ collecte_incident.ouvrage.libelle_ouvrage }}</p>
-    </div>
-
-    <form method="post" class="form-body" novalidate>
+    <form method="post" class="form-body" novalidate enctype="multipart/form-data">
         {% csrf_token %}
 
-        <fieldset>
-            <h4 class="mb-4 border-bottom pb-2">B. Détails de l'Analyse</h4>
-            <div class="row g-3">
-                {% for field in form %}
-                    <div class="col-md-6">
-                        <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}<div class="invalid-feedback d-block">{{ field.errors|striptags }}</div>{% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        </fieldset>
-        
-        <hr class="my-5">
+        <fieldset class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">B1. Équipe, Acteurs et Expertises</h4>
 
-        <fieldset>
-            <h5 class="mb-3">B1. Équipe d'analyse</h5>
+            <h5 class="mb-3">Équipe d'analyse</h5>
             {{ equipes.management_form }}
             <div id="equipes-container">
                 {% for form in equipes.forms %}
@@ -39,8 +20,8 @@
                     <div class="row g-3">
                         {% for field in form.visible_fields %}
                         <div class="col-md-4">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-                            {{ field }}
+                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label
+                                }}</label>{{ field }}
                         </div>
                         {% endfor %}
                     </div>
@@ -48,13 +29,57 @@
                 </div>
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-equipe"><i class="bi bi-plus"></i> Ajouter un membre</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-equipe">
+                <i class="bi bi-plus"></i> Ajouter un membre
+            </button>
+            <hr class="my-4" />
+
+            <h5 class="mb-3">{{ form.acteurs_selection.label_tag }}</h5>
+            <div class="p-3 border rounded mb-3">
+                <div class="row">
+                    {% for checkbox in form.acteurs_selection %}
+                    <div class="col-md-4">
+                        <div class="form-check">{{ checkbox }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <h5 class="mb-3">{{ form.expertises_selection.label_tag }}</h5>
+            <div class="p-3 border rounded">
+                <div class="row">
+                    {% for checkbox in form.expertises_selection %}
+                    <div class="col-md-4">
+                        <div class="form-check">{{ checkbox }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
         </fieldset>
 
-        <hr class="my-4">
+        <fieldset class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">B2 & B3. Dates et Précisions</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">{{ form.date_analyse.label }}</label>{{ form.date_analyse }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">{{ form.heure_dbt_analyse.label }}</label>{{
+                    form.heure_dbt_analyse }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-medium">{{ form.heure_fin_analyse.label }}</label>{{
+                    form.heure_fin_analyse }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-medium">{{ form.constat.label }}</label>{{
+                    form.constat }}
+                </div>
+            </div>
+        </fieldset>
 
-        <fieldset>
-            <h5 class="mb-3">B7. Recommandations</h5>
+        <fieldset class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">B7. Recommandations</h4>
             {{ recommandations.management_form }}
             <div id="recommandations-container">
                 {% for form in recommandations.forms %}
@@ -62,8 +87,8 @@
                     <div class="row g-3">
                         {% for field in form.visible_fields %}
                         <div class="col-md-4">
-                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-                            {{ field }}
+                            <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label
+                                }}</label>{{ field }}
                         </div>
                         {% endfor %}
                     </div>
@@ -71,11 +96,27 @@
                 </div>
                 {% endfor %}
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-recommandation"><i class="bi bi-plus"></i> Ajouter une recommandation</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="add-recommandation">
+                <i class="bi bi-plus"></i> Ajouter une recommandation
+            </button>
+        </fieldset>
+
+        <fieldset class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2">D. Illustration & E. Conclusion</h4>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-medium">{{ form.illustration.label }}</label>{{ form.illustration }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-medium">{{ form.conclusion.label }}</label>{{ form.conclusion }}
+                </div>
+            </div>
         </fieldset>
 
         <div class="text-center mt-5">
-            <button type="submit" class="btn btn-primary btn-lg px-5">Enregistrer l'Analyse</button>
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                Enregistrer l'Analyse
+            </button>
         </div>
     </form>
 </div>
@@ -85,68 +126,79 @@
         <div class="row g-3">
             {% for field in equipes.empty_form.visible_fields %}
             <div class="col-md-4">
-                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-                {{ field }}
+                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>{{ field }}
             </div>
             {% endfor %}
         </div>
         {% for hidden in equipes.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
     </div>
 </template>
-
 <template id="recommandation-template">
     <div class="p-3 border rounded mb-3 recommandation-form">
         <div class="row g-3">
             {% for field in recommandations.empty_form.visible_fields %}
             <div class="col-md-4">
-                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>
-                {{ field }}
+                <label for="{{ field.id_for_label }}" class="form-label fw-medium">{{ field.label }}</label>{{ field }}
             </div>
             {% endfor %}
         </div>
-        {% for hidden in recommandations.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        {% for hidden in recommandations.empty_form.hidden_fields %}{{ hidden }}{%
+        endfor %}
     </div>
 </template>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    function setupFormset(containerId, addButtonId, templateId, prefix) {
-        const container = document.getElementById(containerId);
-        const addButton = document.getElementById(addButtonId);
-        const template = document.getElementById(templateId);
-        const totalFormsInput = document.querySelector(`#id_${prefix}-TOTAL_FORMS`);
-        
-        if (!container || !addButton || !template || !totalFormsInput) {
-            console.error("Un ou plusieurs éléments du formset sont manquants pour le préfixe :", prefix);
-            return;
+    document.addEventListener("DOMContentLoaded", function () {
+        function setupFormset(containerId, addButtonId, templateId, prefix) {
+            const container = document.getElementById(containerId);
+            const addButton = document.getElementById(addButtonId);
+            const template = document.getElementById(templateId);
+            const totalFormsInput = document.querySelector(
+                `#id_${prefix}-TOTAL_FORMS`
+            );
+
+            if (!container || !addButton || !template || !totalFormsInput) {
+                console.error(
+                    "Un ou plusieurs éléments du formset sont manquants pour le préfixe :",
+                    prefix
+                );
+                return;
+            }
+
+            addButton.addEventListener("click", function () {
+                let formNum = parseInt(totalFormsInput.value);
+
+                // On clone le contenu du template
+                const newFormFragment = template.content.cloneNode(true);
+
+                // On met à jour les attributs des éléments clonés
+                const newFormElements = newFormFragment.querySelectorAll("*");
+                newFormElements.forEach(function (element) {
+                    ["for", "id", "name"].forEach(function (attr) {
+                        let value = element.getAttribute(attr);
+                        if (value) {
+                            element.setAttribute(attr, value.replace(/__prefix__/g, formNum));
+                        }
+                    });
+                });
+
+                container.append(newFormFragment);
+                totalFormsInput.value = formNum + 1;
+            });
         }
 
-        addButton.addEventListener('click', function() {
-            let formNum = parseInt(totalFormsInput.value);
-            
-            // On clone le contenu du template
-            const newFormFragment = template.content.cloneNode(true);
-            
-            // On met à jour les attributs des éléments clonés
-            const newFormElements = newFormFragment.querySelectorAll('*');
-            newFormElements.forEach(function(element) {
-                ['for', 'id', 'name'].forEach(function(attr) {
-                    let value = element.getAttribute(attr);
-                    if (value) {
-                        element.setAttribute(attr, value.replace(/__prefix__/g, formNum));
-                    }
-                });
-            });
-
-            container.append(newFormFragment);
-            totalFormsInput.value = formNum + 1;
-        });
-    }
-
-    setupFormset('equipes-container', 'add-equipe', 'equipe-template', 'equipes');
-    setupFormset('recommandations-container', 'add-recommandation', 'recommandation-template', 'recommandations');
-});
+        setupFormset(
+            "equipes-container",
+            "add-equipe",
+            "equipe-template",
+            "equipes"
+        );
+        setupFormset(
+            "recommandations-container",
+            "add-recommandation",
+            "recommandation-template",
+            "recommandations"
+        );
+    });
 </script>
 {% endblock %}
