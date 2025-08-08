@@ -105,77 +105,84 @@ class CollecteIncident(models.Model):
         )
 
 
+
+
 class AnalyseIncident(models.Model):
     id = models.AutoField(primary_key=True)
-    date_analyse = models.DateField()
-    heure_dbt_analyse = models.TimeField()
-    heure_fin_analyse = models.TimeField()
-    impact_nod = models.CharField(max_length=200)
-    impact_nip = models.CharField(max_length=200)
-    impact_tmc = models.CharField(max_length=200)
-    impact_cout = models.CharField(max_length=200)
-    impact_autre = models.CharField(max_length=200)
-    list_acteurs = models.TextField()
-    list_expertise = models.TextField()
-    complt_equipment = models.TextField()
-    complt_equip_concerne = models.TextField()
-    lieu = models.ForeignKey(Lieu, on_delete=models.CASCADE)
-    ouvrage = models.ForeignKey(Ouvrage, on_delete=models.CASCADE)
-    equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE)
-    repartition = models.CharField(max_length=100)
-    constat = models.TextField()
-    jour_constat = models.CharField(max_length=100, default='RAS')
-    heure_dbt_constat = models.CharField(max_length=100, default='RAS')
-    heure_fin_constat = models.CharField(max_length=100, default='RAS')
-    saison_constat = models.CharField(max_length=100, default='RAS')
-    complt_espace_env = models.TextField()
-
-    illustration = models.ImageField(upload_to='illustrations/', null=True, blank=True)
-
-    cause = models.ForeignKey('Cause', on_delete=models.SET_NULL, null=True)
-    incident = models.OneToOneField(CollecteIncident, on_delete=models.CASCADE, related_name='analyse')
+    date_analyse = models.DateField(verbose_name="Date analyse")
+    heure_dbt_analyse = models.TimeField(verbose_name="Heure de début d'analyse")
+    heure_fin_analyse = models.TimeField(verbose_name="Heure de fin d'analyse")
     
-    conclusion = models.TextField(verbose_name="Conclusion de l'analyse", blank=True, null=True)
+    # Section B4 - Impacts
+    impact_nod = models.CharField("Impact NOD", max_length=200)
+    impact_nip = models.CharField("Impact NIP", max_length=200)
+    impact_tmc = models.CharField("Impact TMC", max_length=200)
+    impact_cout = models.CharField("Impact en Coûts et durées", max_length=200)
+    impact_autre = models.CharField("Autres impacts (environnement, image…)", max_length=200)
+    repartition = models.CharField("Répartition (END, ...)", max_length=100)
+    
+    # Acteurs et Expertises
+    list_acteurs = models.TextField(verbose_name="Acteurs au moment de l'incident", blank=True)
+    list_expertise = models.TextField(verbose_name="Expertises utiles pour l'analyse", blank=True)
+    
+    # Section B5 - Compléments
+    complt_equipment = models.TextField(verbose_name="Compléments sur la famille d'équipement")
+    complt_equip_concerne = models.TextField(verbose_name="Compléments sur l'équipement concerné")
+    complt_espace_env = models.TextField(verbose_name="Compléments sur l'espace et environnement")
+    
+    # Section B3 - Précisions
+    constat = models.TextField(verbose_name="Précisions obtenues (Cause, effet, défaillance)")
+    
+    # Section B6 - Constats
+    jour_constat = models.CharField("Constats/Jours", max_length=100, default='RAS')
+    heure_dbt_constat = models.CharField("Constats/Tranche d'heure début", max_length=100, default='RAS')
+    heure_fin_constat = models.CharField("Constats/Tranche d'heure fin", max_length=100, default='RAS')
+    saison_constat = models.CharField("Constats/Saisons", max_length=100, default='RAS')
+
+    # Section D - Illustration
+    illustration = models.ImageField("Illustration", upload_to='illustrations/', null=True, blank=True)
+
+    # Liens
+    cause = models.ForeignKey('Cause', on_delete=models.SET_NULL, null=True, verbose_name="Cause Principale")
+    incident = models.OneToOneField(CollecteIncident, on_delete=models.CASCADE, related_name='analyse', verbose_name="Incident Concerné")
+    
+    # Section E - Conclusion
+    conclusion = models.TextField(verbose_name="Conclusion", blank=True, null=True)
 
     def __str__(self):
         return f'Analyse {self.cause.type_cause} - {self.incident}'
-
     
 class EquipeAnalyse(models.Model):
     id = models.AutoField(primary_key=True)
-    nom = models.CharField(max_length=100)
-    structure = models.CharField(max_length=100)
-    role = models.CharField(max_length=100)
-    analyse = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='equipe', null=True)
-
+    nom = models.CharField("Nom", max_length=100)
+    structure = models.CharField("Structure", max_length=100)
+    role = models.CharField("Rôle", max_length=100)
+    analyse = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='equipe', null=True, verbose_name="Analyse Associée")
     def __str__(self):
         return f"[{self.id}] {self.nom} - {self.structure} - {self.role} (Analyse {self.analyse})"
 
-    
 
 class Acteur(models.Model):
      id = models.AutoField(primary_key=True)
-     acteur= models.CharField(max_length=100)
+     acteur= models.CharField("Acteur", max_length=100)
      def __str__(self):
         return f"acteur: {self.acteur}"
     
     
 class Expertise(models.Model):
     id = models.AutoField(primary_key=True)
-    expertise= models.CharField(max_length=100)
+    expertise= models.CharField("Expertise", max_length=100)
     def __str__(self):
         return f"expertise: {self.expertise}"
     
     
-    
 class RecommandationAnalyse(models.Model):
     id = models.AutoField(primary_key=True)
-    action = models.CharField(max_length=200)
-    responsabilite = models.CharField(max_length=100)
-    delai = models.DateField(null=True, blank=True)
-    cout = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
-    analyse_inc = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='recommandations', null=True)
+    action = models.CharField("Action recommandée", max_length=200)
+    responsabilite = models.CharField("Responsabilité", max_length=100)
+    delai = models.DateField("Délai", null=True, blank=True)
+    cout = models.DecimalField("Coût estimé", max_digits=10, decimal_places=2, null=True, blank=True)
+    analyse_inc = models.ForeignKey(AnalyseIncident, on_delete=models.CASCADE, related_name='recommandations', null=True, verbose_name="Analyse Associée")
 
     def __str__(self):
         return (
@@ -184,14 +191,15 @@ class RecommandationAnalyse(models.Model):
         )
 
 
-
 class SuiviIncident(models.Model):
+    
     id = models.AutoField(primary_key=True)
-    incident = models.ForeignKey(CollecteIncident, on_delete=models.CASCADE)
-    tenue_delai = models.BooleanField()
-    commentaire_tenue_delai = models.TextField(blank=True, null=True)
-    efficacite_action = models.BooleanField()
-    commentaire_efficacite = models.TextField(blank=True, null=True)
+    incident = models.ForeignKey(CollecteIncident, on_delete=models.CASCADE, verbose_name="Incident Concerné")
+    tenue_delai = models.BooleanField("Tenue des délais opérationnels convenus")
+    commentaire_tenue_delai = models.TextField("Commentaire sur les délais", blank=True, null=True)
+    efficacite_action = models.BooleanField("Efficacité des actions (6 mois/3 ans)")
+    commentaire_efficacite = models.TextField("Commentaire sur l'efficacité", blank=True, null=True)
+
 
     def __str__(self):
         return (
@@ -202,3 +210,5 @@ class SuiviIncident(models.Model):
             f"commentaire_efficacite='{self.commentaire_efficacite}')"
         )
 
+
+    
